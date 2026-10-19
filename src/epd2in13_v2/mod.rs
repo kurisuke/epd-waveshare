@@ -93,7 +93,7 @@ where
         // HW reset
         self.interface.reset(delay, 10_000, 10_000);
 
-        if self.refresh == RefreshLut::Quick {
+        if matches!(self.refresh, RefreshLut::Quick | RefreshLut::PartialRefresh) {
             self.set_vcom_register(spi, (-9).vcom())?;
             self.wait_until_idle(spi, delay)?;
 
@@ -316,7 +316,7 @@ where
         self.update_frame(spi, buffer, delay)?;
         self.display_frame(spi, delay)?;
 
-        if self.refresh == RefreshLut::Quick {
+        if matches!(self.refresh, RefreshLut::Quick | RefreshLut::PartialRefresh) {
             self.set_partial_base_buffer(spi, delay, buffer)?;
         }
         Ok(())
@@ -374,7 +374,7 @@ where
     ) -> Result<(), SPI::Error> {
         let buffer = match refresh_rate {
             Some(RefreshLut::Full) | None => &LUT_FULL_UPDATE,
-            Some(RefreshLut::Quick) => &LUT_PARTIAL_UPDATE,
+            Some(RefreshLut::Quick | RefreshLut::PartialRefresh) => &LUT_PARTIAL_UPDATE,
         };
 
         self.cmd_with_data(spi, Command::WriteLutRegister, buffer)

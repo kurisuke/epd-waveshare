@@ -175,7 +175,7 @@ where
         if self.refresh == RefreshLut::Full {
             self.interface
                 .cmd_with_data(spi, Command::DisplayUpdateControl2, &[0xC7])?;
-        } else if self.refresh == RefreshLut::Quick {
+        } else if matches!(self.refresh, RefreshLut::Quick | RefreshLut::PartialRefresh) {
             self.interface
                 .cmd_with_data(spi, Command::DisplayUpdateControl2, &[0xCF])?;
         }
@@ -233,11 +233,13 @@ where
         }
         match self.refresh {
             RefreshLut::Full => self.set_lut_helper(spi, delay, &LUT_FULL_UPDATE),
-            RefreshLut::Quick => self.set_lut_helper(spi, delay, &LUT_PARTIAL_UPDATE),
+            RefreshLut::Quick | RefreshLut::PartialRefresh => {
+                self.set_lut_helper(spi, delay, &LUT_PARTIAL_UPDATE)
+            }
         }?;
 
         // Additional configuration required only for partial updates
-        if self.refresh == RefreshLut::Quick {
+        if matches!(self.refresh, RefreshLut::Quick | RefreshLut::PartialRefresh) {
             self.interface.cmd_with_data(
                 spi,
                 Command::WriteOtpSelection,

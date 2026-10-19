@@ -14,8 +14,13 @@ pub enum RefreshLut {
     #[default]
     Full,
     /// The quick LUT where not the full refresh sequence is followed.
-    /// This might lead to some
+    /// This might lead to some ghosting.
     Quick,
+    /// Differential, flicker-free LUT intended for partial refreshes: only pixels whose
+    /// new value differs from the previous one are driven. Ghosting accumulates, so an
+    /// occasional `Full` refresh is needed. Drivers without a dedicated partial waveform
+    /// treat this like `Quick`.
+    PartialRefresh,
 }
 
 pub(crate) trait InternalWiAdditions<SPI, BUSY, DC, RST, DELAY>

@@ -159,7 +159,7 @@ where
         if self.refresh == RefreshLut::Full {
             self.interface
                 .cmd_with_data(spi, Command::DisplayUpdateControl2, &[0xF7])?;
-        } else if self.refresh == RefreshLut::Quick {
+        } else if matches!(self.refresh, RefreshLut::Quick | RefreshLut::PartialRefresh) {
             self.interface
                 .cmd_with_data(spi, Command::DisplayUpdateControl2, &[0xC7])?;
         }
